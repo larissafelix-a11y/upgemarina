@@ -1,3 +1,15 @@
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -21,72 +33,6 @@
     body{background:var(--bg);font-family:var(--font-sans);font-size:13px;color:var(--t1);min-height:100vh}
     button,input,select,textarea{font:inherit}
     button:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
-
-    /* ===================== LOGIN ===================== */
-    #login-screen{
-      position:fixed;inset:0;z-index:9999;
-      background:var(--surface2);
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
-    }
-    .login-card{
-      background:var(--surface);
-      border:1px solid var(--bd2);
-      border-radius:16px;
-      width:100%;max-width:380px;
-      padding:36px 32px 32px;
-      box-shadow:0 8px 40px rgba(0,0,0,.08);
-    }
-    .login-logo{
-      width:44px;height:44px;border-radius:12px;
-      background:var(--blue);
-      display:flex;align-items:center;justify-content:center;
-      font-size:20px;margin-bottom:20px;
-    }
-    .login-card h2{
-      font-size:17px;font-weight:700;letter-spacing:-0.4px;
-      color:var(--t1);margin-bottom:4px;
-    }
-    .login-card p{
-      font-size:12.5px;color:var(--t2);margin-bottom:24px;line-height:1.5;
-    }
-    .login-fgroup{margin-bottom:14px;}
-    .login-fgroup label{
-      display:block;font-size:11.5px;font-weight:600;
-      color:var(--t2);text-transform:uppercase;letter-spacing:.5px;
-      margin-bottom:5px;
-    }
-    .login-input{
-      width:100%;padding:9px 12px;
-      border-radius:8px;border:1px solid var(--bd2);
-      background:var(--surface2);font-size:13px;
-      color:var(--t1);outline:none;
-      transition:border-color .15s,background .15s;
-    }
-    .login-input:focus{border-color:var(--blue);background:var(--surface);}
-    .login-input.error{border-color:var(--red);}
-    .login-err{
-      font-size:11px;color:var(--red);margin-top:5px;
-      display:none;
-    }
-    .login-err.show{display:block;}
-    .login-btn{
-      width:100%;padding:9px 14px;
-      border-radius:8px;border:none;
-      background:var(--blue);color:#fff;
-      font-size:13px;font-weight:600;
-      cursor:pointer;transition:opacity .15s;
-      margin-top:4px;
-    }
-    .login-btn:hover:not(:disabled){opacity:.88;}
-    .login-btn:focus{outline:2px solid var(--blue);outline-offset:2px;}
-    .login-footer{
-      margin-top:20px;padding-top:16px;
-      border-top:1px solid var(--bd);
-      font-size:11px;color:var(--t2);text-align:center;line-height:1.5;
-    }
-    /* ================================================= */
-
     .wrap{max-width:1280px;margin:0 auto;padding:20px 24px 48px}
     .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
     .hdr-left{flex:1;min-width:0}
@@ -135,93 +81,63 @@
   </style>
 </head>
 <body>
-
-  <!-- ==================== TELA DE LOGIN ==================== -->
-  <div id="login-screen">
-    <div class="login-card">
-      <div class="login-logo">▤</div>
-      <h2>Painel de Processos</h2>
-      <p>Acesso restrito. Informe suas credenciais para continuar.</p>
-
-      <div class="login-fgroup">
-        <label for="login-user">Usuário</label>
-        <input class="login-input" id="login-user" type="text" placeholder="seu.usuario" autocomplete="username" />
-      </div>
-      <div class="login-fgroup">
-        <label for="login-pass">Senha</label>
-        <input class="login-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
-        <div class="login-err" id="login-err">Usuário ou senha incorretos.</div>
-      </div>
-
-      <button class="login-btn" id="login-btn" type="button">Entrar</button>
-
-      <div class="login-footer">
-        Problemas de acesso? Fale com o administrador do sistema.
-      </div>
-    </div>
-  </div>
-  <!-- ======================================================= -->
-
-  <div id="app-content" style="display:none">
-    <div class="wrap">
-      <header class="hdr">
-        <div class="hdr-left">
-          <div class="title-wrap">
-            <span class="title-display" id="title-display" role="button" tabindex="0" title="Clique para editar">Processos de Compra de Alimentos</span>
-            <button class="edit-ic" id="title-edit-btn" type="button" aria-label="Editar título">✎</button>
-          </div>
-          <input class="title-input" id="title-input" style="display:none" value="Processos de Compra de Alimentos" aria-label="Título do painel">
-          <div class="subtitle-wrap" id="subtitle-wrap">
-            <span class="subtitle-display" id="subtitle-display" role="button" tabindex="0" title="Clique para editar">Acompanhamento em tempo real · Alimentos &amp; Insumos</span>
-            <button class="subtitle-edit-ic" id="subtitle-edit-btn" type="button" aria-label="Editar subtítulo">✎</button>
-          </div>
-          <input class="subtitle-input" id="subtitle-input" style="display:none" value="Acompanhamento em tempo real · Alimentos &amp; Insumos" aria-label="Subtítulo do painel">
+  <div class="wrap">
+    <header class="hdr">
+      <div class="hdr-left">
+        <div class="title-wrap">
+          <span class="title-display" id="title-display" role="button" tabindex="0" title="Clique para editar">Processos de Compra de Alimentos</span>
+          <button class="edit-ic" id="title-edit-btn" type="button" aria-label="Editar título">✎</button>
         </div>
-        <div class="hdr-actions">
-          <button class="btn btn-ghost" id="btn-steps" type="button">⚙ Gerenciar etapas</button>
-          <button class="btn btn-ghost" id="btn-export" type="button">↓ Exportar CSV</button>
-          <button class="btn btn-primary" id="btn-new" type="button">+ Novo processo</button>
-          <button class="btn btn-ghost" id="btn-logout" type="button" title="Sair">↩ Sair</button>
+        <input class="title-input" id="title-input" style="display:none" value="Processos de Compra de Alimentos" aria-label="Título do painel">
+        <div class="subtitle-wrap" id="subtitle-wrap">
+          <span class="subtitle-display" id="subtitle-display" role="button" tabindex="0" title="Clique para editar">Acompanhamento em tempo real · Alimentos &amp; Insumos</span>
+          <button class="subtitle-edit-ic" id="subtitle-edit-btn" type="button" aria-label="Editar subtítulo">✎</button>
         </div>
-      </header>
+        <input class="subtitle-input" id="subtitle-input" style="display:none" value="Acompanhamento em tempo real · Alimentos &amp; Insumos" aria-label="Subtítulo do painel">
+      </div>
+      <div class="hdr-actions">
+        <button class="btn btn-ghost" id="btn-steps" type="button">⚙ Gerenciar etapas</button>
+        <button class="btn btn-ghost" id="btn-export" type="button">↓ Exportar CSV</button>
+        <button class="btn btn-primary" id="btn-new" type="button">+ Novo processo</button>
+      </div>
+    </header>
 
-      <section class="kpi-row" aria-label="Indicadores do painel">
-        <div class="kpi kpi-blue"><div class="kpi-icon">▤</div><div class="kpi-val" id="k-active">—</div><div class="kpi-label">Processos ativos</div><span class="kpi-delta delta-n" id="k-adelta"></span></div>
-        <div class="kpi kpi-red"><div class="kpi-icon">!</div><div class="kpi-val" id="k-high">—</div><div class="kpi-label">Alta prioridade</div><span class="kpi-delta delta-dn" id="k-hdelta"></span></div>
-        <div class="kpi kpi-green"><div class="kpi-icon">✓</div><div class="kpi-val" id="k-done">—</div><div class="kpi-label">Concluídos</div><span class="kpi-delta delta-up" id="k-ddelta"></span></div>
-        <div class="kpi kpi-amber"><div class="kpi-icon">◐</div><div class="kpi-val" id="k-avg">—</div><div class="kpi-label">Avanço médio</div><span class="kpi-delta delta-n" id="k-avdelta"></span></div>
-      </section>
+    <section class="kpi-row" aria-label="Indicadores do painel">
+      <div class="kpi kpi-blue"><div class="kpi-icon">▤</div><div class="kpi-val" id="k-active">—</div><div class="kpi-label">Processos ativos</div><span class="kpi-delta delta-n" id="k-adelta"></span></div>
+      <div class="kpi kpi-red"><div class="kpi-icon">!</div><div class="kpi-val" id="k-high">—</div><div class="kpi-label">Alta prioridade</div><span class="kpi-delta delta-dn" id="k-hdelta"></span></div>
+      <div class="kpi kpi-green"><div class="kpi-icon">✓</div><div class="kpi-val" id="k-done">—</div><div class="kpi-label">Concluídos</div><span class="kpi-delta delta-up" id="k-ddelta"></span></div>
+      <div class="kpi kpi-amber"><div class="kpi-icon">◐</div><div class="kpi-val" id="k-avg">—</div><div class="kpi-label">Avanço médio</div><span class="kpi-delta delta-n" id="k-avdelta"></span></div>
+    </section>
 
-      <section class="fbar" aria-label="Filtros">
-        <div class="srch"><span class="srch-ic">⌕</span><input id="fsearch" type="text" placeholder="Buscar processo SEI, produto…" aria-label="Buscar processo SEI, produto, responsável ou observação"></div>
-        <div class="fsep"></div>
-        <select class="fsel" id="fetapa" aria-label="Filtrar por etapa"><option value="">Todas as etapas</option></select>
-        <select class="fsel" id="fpri" aria-label="Filtrar por prioridade"><option value="">Prioridade</option><option>Alta</option><option>Média</option><option>Baixa</option></select>
-        <select class="fsel" id="fresp" aria-label="Filtrar por responsável"><option value="">Responsável</option></select>
-        <div class="fsep"></div>
-        <select class="fsel" id="fsort" aria-label="Ordenar processos"><option value="">Ordenar por</option><option value="prazo">Prazo</option><option value="pri">Prioridade</option><option value="step">Avanço</option></select>
-      </section>
+    <section class="fbar" aria-label="Filtros">
+      <div class="srch"><span class="srch-ic">⌕</span><input id="fsearch" type="text" placeholder="Buscar processo SEI, produto…" aria-label="Buscar processo SEI, produto, responsável ou observação"></div>
+      <div class="fsep"></div>
+      <select class="fsel" id="fetapa" aria-label="Filtrar por etapa"><option value="">Todas as etapas</option></select>
+      <select class="fsel" id="fpri" aria-label="Filtrar por prioridade"><option value="">Prioridade</option><option>Alta</option><option>Média</option><option>Baixa</option></select>
+      <select class="fsel" id="fresp" aria-label="Filtrar por responsável"><option value="">Responsável</option></select>
+      <div class="fsep"></div>
+      <select class="fsel" id="fsort" aria-label="Ordenar processos"><option value="">Ordenar por</option><option value="prazo">Prazo</option><option value="pri">Prioridade</option><option value="step">Avanço</option></select>
+    </section>
 
-      <main class="tcard" aria-live="polite">
-        <div class="table-scroll">
-          <div class="table-inner">
-            <div class="thead-row" id="thead-row">
-              <div class="col-proc th">Produto / SEI</div>
-              <div class="col-resp th">Resp. etapa</div>
-              <div class="col-prazo th">Prazos</div>
-              <div class="col-pri th">Prioridade</div>
-              <div class="col-tl">
-                <div class="th" style="margin-bottom:6px">Etapas do processo</div>
-                <div class="step-labels-row" id="step-labels-row"></div>
-              </div>
-              <div class="col-acts th">Ações</div>
+    <main class="tcard" aria-live="polite">
+      <div class="table-scroll">
+        <div class="table-inner">
+          <div class="thead-row" id="thead-row">
+            <div class="col-proc th">Produto / SEI</div>
+            <div class="col-resp th">Resp. etapa</div>
+            <div class="col-prazo th">Prazos</div>
+            <div class="col-pri th">Prioridade</div>
+            <div class="col-tl">
+              <div class="th" style="margin-bottom:6px">Etapas do processo</div>
+              <div class="step-labels-row" id="step-labels-row"></div>
             </div>
-            <div id="tbody"><div class="loading-row">Carregando processos…</div></div>
+            <div class="col-acts th">Ações</div>
           </div>
+          <div id="tbody"><div class="loading-row">Carregando processos…</div></div>
         </div>
-        <div class="tfooter"><span id="tcount">Carregando…</span><span id="tupd">Aguardando dados</span></div>
-      </main>
-    </div>
+      </div>
+      <div class="tfooter"><span id="tcount">Carregando…</span><span id="tupd">Aguardando dados</span></div>
+    </main>
   </div>
 
   <div class="toast-wrap" id="toast-wrap" aria-live="polite" aria-atomic="true"></div>
@@ -325,94 +241,15 @@
   <script>
     'use strict';
 
-    /* ===================== LOGIN =====================
-       Credenciais definidas aqui — troque conforme necessário.
-       Para segurança real, valide no backend ou use autenticação
-       do próprio Supabase (supabase.auth.signInWithPassword).
-    ================================================== */
-    const LOGIN_USERS = [
-      { user: 'admin',    pass: 'admin123' },
-      { user: 'gestor',   pass: 'gestor@2025' },
-    ];
-    const SESSION_KEY = 'painel_auth_v1';
-
-    function checkSession(){
-      try{ return !!sessionStorage.getItem(SESSION_KEY); }
-      catch(e){ return false; }
-    }
-    function createSession(user){
-      try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, ts: Date.now() })); }
-      catch(e){}
-    }
-    function destroySession(){
-      try{ sessionStorage.removeItem(SESSION_KEY); }
-      catch(e){}
-    }
-    function showApp(){
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app-content').style.display = '';
-    }
-    function showLogin(){
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('app-content').style.display = 'none';
-      document.getElementById('login-user').value = '';
-      document.getElementById('login-pass').value = '';
-      document.getElementById('login-err').classList.remove('show');
-      setTimeout(() => document.getElementById('login-user').focus(), 60);
-    }
-
-    function attemptLogin(){
-      const user = document.getElementById('login-user').value.trim();
-      const pass = document.getElementById('login-pass').value;
-      const match = LOGIN_USERS.find(c => c.user === user && c.pass === pass);
-      if(match){
-        document.getElementById('login-err').classList.remove('show');
-        document.getElementById('login-user').classList.remove('error');
-        document.getElementById('login-pass').classList.remove('error');
-        createSession(user);
-        showApp();
-        initApp();
-      } else {
-        document.getElementById('login-err').classList.add('show');
-        document.getElementById('login-user').classList.add('error');
-        document.getElementById('login-pass').classList.add('error');
-        document.getElementById('login-pass').value = '';
-        document.getElementById('login-pass').focus();
-      }
-    }
-
-    // Eventos do login
-    document.getElementById('login-btn').addEventListener('click', attemptLogin);
-    document.getElementById('login-pass').addEventListener('keydown', e => {
-      if(e.key === 'Enter') attemptLogin();
-    });
-    document.getElementById('login-user').addEventListener('keydown', e => {
-      if(e.key === 'Enter') document.getElementById('login-pass').focus();
-    });
-    // Limpa erro ao digitar
-    ['login-user','login-pass'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => {
-        document.getElementById('login-err').classList.remove('show');
-        document.getElementById('login-user').classList.remove('error');
-        document.getElementById('login-pass').classList.remove('error');
-      });
-    });
-
-    // Verifica sessão ao carregar
-    if(checkSession()){
-      showApp();
-    } else {
-      setTimeout(() => document.getElementById('login-user').focus(), 60);
-    }
-    /* ================================================ */
-
     /*
       A chave publishable/anon do Supabase é pública por natureza em aplicações front-end.
       Segurança real deve ser feita no banco com RLS habilitado e policies adequadas para
       as tabelas public.processos e public.painel_configuracoes.
     */
-    const SUPABASE_URL = https://bjnzgerexnmkzighkdrw.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_HbNTBmMt1Ktara1XdZtStw_6s5-Ur2F';
+
+const SUPABASE_URL = 'https://bjnzgerexnmkzighkdrw.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_HbNTBmMt1Ktara1XdZtStw_6s5-Ur2F';
 
     const DEFAULT_STEPS = [
       'Levantamento da demanda','Pesquisa de mercado e validação','Elaboração e aprovação do ETP','Preparação da chamada pública','Análise jurídica e autorização','Publicação e divulgação do edital','Chamada aberta','Análise dos documentos','Divulgação dos resultados','Homologação','Contratação','Entrega','Pagamento/liquidação'
@@ -447,7 +284,6 @@
     let supportsStageFields = true;
     let pendingStageChange = null;
     let dueAlertSeenKeys = new Set();
-    let appInitialized = false;
 
     const $ = (id) => document.getElementById(id);
 
@@ -1359,10 +1195,6 @@
       $('btn-steps').addEventListener('click', openStepsManager);
       $('btn-export').addEventListener('click', exportCSV);
       $('btn-new').addEventListener('click', () => openModal(null));
-      $('btn-logout').addEventListener('click', () => {
-        destroySession();
-        showLogin();
-      });
       ['fsearch','fetapa','fpri','fresp','fsort'].forEach(id => $(id).addEventListener(id === 'fsearch' ? 'input' : 'change', renderTable));
       $('modal-close').addEventListener('click', closeModal);
       $('modal-cancel').addEventListener('click', closeModal);
@@ -1416,9 +1248,7 @@
       });
     }
 
-    async function initApp(){
-      if(appInitialized) return;
-      appInitialized = true;
+    (async function init(){
       try{
         bindEvents();
         initSupabase();
@@ -1434,12 +1264,7 @@
         $('tcount').textContent = 'Erro ao carregar';
         toast('Erro ao inicializar o painel.', 'red');
       }
-    }
-
-    // Inicia o app apenas se já autenticado (sessão válida ao carregar)
-    if(checkSession()){
-      initApp();
-    }
+    })();
   </script>
 </body>
 </html>
