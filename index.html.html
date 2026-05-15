@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Processos</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#FFFFFF;--surface:#FFFFFF;--surface2:#F8F9FB;
+      --bd:rgba(0,0,0,0.08);--bd2:rgba(0,0,0,0.14);
+      --t1:#111827;--t2:#6B7280;
+      --blue:#2563EB;--blue-bg:#EFF4FF;
+      --green:#16A34A;--green-bg:#F0FDF4;
+      --amber:#B45309;--amber-bg:#FFFBEB;
+      --red:#DC2626;--red-bg:#FEF2F2;
+      --font-sans:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+      --r:10px;
+    }
+    body{background:var(--bg);font-family:var(--font-sans);font-size:13px;color:var(--t1);min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    button:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+
+    /* ===================== LOGIN ===================== */
+    #login-screen{
+      position:fixed;inset:0;z-index:9999;
+      background:var(--surface2);
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    }
+    .login-card{
+      background:var(--surface);
+      border:1px solid var(--bd2);
+      border-radius:16px;
+      width:100%;max-width:380px;
+      padding:36px 32px 32px;
+      box-shadow:0 8px 40px rgba(0,0,0,.08);
+    }
+    .login-logo{
+      width:44px;height:44px;border-radius:12px;
+      background:var(--blue);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;margin-bottom:20px;
+    }
+    .login-card h2{
+      font-size:17px;font-weight:700;letter-spacing:-0.4px;
+      color:var(--t1);margin-bottom:4px;
+    }
+    .login-card p{
+      font-size:12.5px;color:var(--t2);margin-bottom:24px;line-height:1.5;
+    }
+    .login-fgroup{margin-bottom:14px;}
+    .login-fgroup label{
+      display:block;font-size:11.5px;font-weight:600;
+      color:var(--t2);text-transform:uppercase;letter-spacing:.5px;
+      margin-bottom:5px;
+    }
+    .login-input{
+      width:100%;padding:9px 12px;
+      border-radius:8px;border:1px solid var(--bd2);
+      background:var(--surface2);font-size:13px;
+      color:var(--t1);outline:none;
+      transition:border-color .15s,background .15s;
+    }
+    .login-input:focus{border-color:var(--blue);background:var(--surface);}
+    .login-input.error{border-color:var(--red);}
+    .login-err{
+      font-size:11px;color:var(--red);margin-top:5px;
+      display:none;
+    }
+    .login-err.show{display:block;}
+    .login-btn{
+      width:100%;padding:9px 14px;
+      border-radius:8px;border:none;
+      background:var(--blue);color:#fff;
+      font-size:13px;font-weight:600;
+      cursor:pointer;transition:opacity .15s;
+      margin-top:4px;
+    }
+    .login-btn:hover:not(:disabled){opacity:.88;}
+    .login-btn:focus{outline:2px solid var(--blue);outline-offset:2px;}
+    .login-footer{
+      margin-top:20px;padding-top:16px;
+      border-top:1px solid var(--bd);
+      font-size:11px;color:var(--t2);text-align:center;line-height:1.5;
+    }
+    /* ================================================= */
+
+    .wrap{max-width:1280px;margin:0 auto;padding:20px 24px 48px}
+    .hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+    .hdr-left{flex:1;min-width:0}
+    .title-wrap{display:flex;align-items:center;gap:8px;margin-bottom:4px;min-width:0}
+    .title-display{font-size:18px;font-weight:700;letter-spacing:-0.4px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding-bottom:1px;max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .title-display:hover,.title-display:focus{border-bottom-color:var(--blue);outline:none}
+    .edit-ic,.subtitle-edit-ic{border:0;background:transparent;color:var(--t2);cursor:pointer;opacity:0;transition:opacity .2s;padding:2px;border-radius:4px}
+    .edit-ic{font-size:12px}.subtitle-edit-ic{font-size:10px}
+    .title-wrap:hover .edit-ic,.title-wrap:focus-within .edit-ic,.subtitle-wrap:hover .subtitle-edit-ic,.subtitle-wrap:focus-within .subtitle-edit-ic{opacity:1}
+    .edit-ic:focus,.subtitle-edit-ic:focus{opacity:1;outline:2px solid var(--blue);outline-offset:2px}
+    .title-input{font-size:18px;font-weight:700;letter-spacing:-0.4px;background:transparent;border:none;border-bottom:2px solid var(--blue);outline:none;color:var(--t1);padding-bottom:1px;min-width:200px;max-width:520px;width:min(520px,100%)}
+    .subtitle-wrap{display:flex;align-items:center;gap:6px;min-width:0}
+    .subtitle-display{font-size:12px;color:var(--t2);cursor:pointer;border-bottom:1px dashed transparent;transition:border-color .2s;padding-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:620px}
+    .subtitle-display:hover,.subtitle-display:focus{border-bottom-color:var(--blue);color:var(--t1);outline:none}
+    .subtitle-input{font-size:12px;background:transparent;border:none;border-bottom:1.5px solid var(--blue);outline:none;color:var(--t1);padding-bottom:1px;min-width:180px;max-width:520px;width:min(520px,100%)}
+    .hdr-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+    .btn:hover:not(:disabled){opacity:.85}.btn:focus{outline:2px solid var(--blue);outline-offset:2px}
+    .btn-ghost{background:var(--surface);border:1px solid var(--bd2);color:var(--t1)}
+    .btn-primary{background:var(--blue);color:#fff}.btn-danger{background:var(--red);color:#fff}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .kpi{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px}
+    .kpi-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:14px;font-weight:700}
+    .kpi-val{font-size:26px;font-weight:700;letter-spacing:-0.8px;line-height:1}.kpi-label{font-size:11.5px;color:var(--t2);margin-top:3px}
+    .kpi-delta{font-size:11px;margin-top:6px;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-weight:500}
+    .kpi-blue .kpi-icon{background:var(--blue-bg);color:var(--blue)}.kpi-red .kpi-icon{background:var(--red-bg);color:var(--red)}.kpi-green .kpi-icon{background:var(--green-bg);color:var(--green)}.kpi-amber .kpi-icon{background:var(--amber-bg);color:var(--amber)}
+    .delta-up{background:var(--green-bg);color:var(--green)}.delta-dn{background:var(--red-bg);color:var(--red)}.delta-n{background:var(--blue-bg);color:var(--blue)}
+    .fbar{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .fsep{width:1px;height:22px;background:var(--bd2);flex-shrink:0}.srch{position:relative;flex:1;min-width:190px}.srch-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:13px;pointer-events:none}
+    .srch input{width:100%;padding:6px 9px 6px 28px;border-radius:7px;border:1px solid var(--bd);background:var(--surface2);font-size:12.5px;color:var(--t1);outline:none}.srch input:focus{border-color:var(--blue)}
+    select.fsel{padding:6px 10px;border-radius:7px;border:1px solid var(--bd);background:var(--surface2);font-size:12.5px;color:var(--t1);outline:none;cursor:pointer;max-width:220px}select.fsel:focus{border-color:var(--blue)}
+    .tcard{background:var(--surface);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}.table-scroll{overflow-x:auto;width:100%}.table-inner{min-width:980px}
+    .row-grid{display:flex;align-items:stretch;min-height:64px}.col-proc{width:220px;flex-shrink:0;padding:12px 14px 12px 16px;border-right:1px solid var(--bd)}.col-resp{width:150px;flex-shrink:0;padding:12px 14px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center}.col-prazo{width:120px;flex-shrink:0;padding:12px 14px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center}.col-pri{width:90px;flex-shrink:0;padding:12px 14px;border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:center}.col-tl{flex:1;min-width:300px;padding:10px 16px;border-right:1px solid var(--bd);display:flex;flex-direction:column;justify-content:center;overflow:visible;position:relative}.col-acts{width:98px;flex-shrink:0;padding:12px 10px;display:flex;align-items:center;justify-content:flex-end;gap:4px;position:relative;z-index:20}
+    .thead-row{display:flex;background:var(--surface2);border-bottom:1px solid var(--bd);position:relative;z-index:1}.th{font-size:10.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}.thead-row .col-proc,.thead-row .col-resp,.thead-row .col-prazo,.thead-row .col-pri,.thead-row .col-acts{display:flex;align-items:center;justify-content:center;padding:10px 14px}.thead-row .col-tl{display:flex;flex-direction:column;justify-content:flex-end;padding:10px 16px 0}
+    .step-labels-row{display:flex;justify-content:space-between;padding:0 0 6px;width:100%;gap:2px}.step-lbl{font-size:8px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.2px;text-align:center;flex:1;cursor:default;line-height:1.3;overflow:hidden;padding:0 1px;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-height:2.6em}.step-lbl:hover{color:var(--blue)}
+    .prow{border-bottom:1px solid var(--bd);transition:background .12s;position:relative}.prow:last-child{border-bottom:none}.prow:hover{background:rgba(37,99,235,.025);z-index:30}.proc-id{font-size:10px;color:var(--t2);font-family:var(--font-mono);margin-bottom:2px;letter-spacing:.3px}.proc-name{font-size:12.5px;font-weight:600;letter-spacing:-0.2px;line-height:1.3;word-break:break-word}.stag{font-size:9.5px;padding:2px 6px;border-radius:4px;font-weight:500;margin-top:4px;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.stag-blue{background:var(--blue-bg);color:var(--blue)}.stag-green{background:var(--green-bg);color:var(--green)}.stag-amber{background:var(--amber-bg);color:var(--amber)}.stag-red{background:var(--red-bg);color:var(--red)}
+    .avatar{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#fff;flex-shrink:0}.resp-name{font-size:12px;font-weight:500;word-break:break-word}.prazo-wrap{display:flex;align-items:center;gap:5px}.prazo-val{font-size:12px}.pb-ok{color:var(--green)}.pb-soon{background:var(--amber-bg);color:var(--amber);padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600}.pb-overdue{background:var(--red-bg);color:var(--red);padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600}.pri{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:5px;font-size:11px;font-weight:600}.pri-dot{width:5px;height:5px;border-radius:50%;background:currentColor}.pri-high{background:var(--red-bg);color:var(--red)}.pri-med{background:var(--amber-bg);color:var(--amber)}.pri-low{background:var(--green-bg);color:var(--green)}
+    .tl-outer{position:relative;height:20px;width:100%}.tl-track{position:absolute;top:50%;left:0;right:0;height:1.5px;background:var(--bd2);transform:translateY(-50%);border-radius:2px}.tl-fill{position:absolute;top:50%;left:0;height:1.5px;background:var(--blue);transform:translateY(-50%);border-radius:2px;transition:width .4s}.tl-dots{position:relative;display:flex;justify-content:space-between;align-items:center;height:20px;width:100%}.tl-dot{width:14px;height:20px;border:0;background:transparent;position:relative;z-index:2;cursor:pointer;display:flex;align-items:center;justify-content:center}.tl-dot:before{content:"";width:9px;height:9px;border-radius:50%;border:2px solid;transition:transform .15s,box-shadow .15s}.tl-dot:hover:before,.tl-dot:focus:before{transform:scale(1.5)}.tl-dot.done:before{background:var(--blue);border-color:var(--blue)}.tl-dot.active:before{background:var(--green);border-color:var(--green);box-shadow:0 0 0 3px rgba(22,163,74,.2)}.tl-dot.active.due-soon2:before{background:#FACC15;border-color:#FACC15;box-shadow:0 0 0 3px rgba(250,204,21,.28)}.tl-dot.active.due-today:before{background:#F97316;border-color:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.2)}.tl-dot.active.due-overdue:before{background:var(--red);border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.2)}.tl-dot.future:before{background:var(--surface);border-color:var(--bd2)}.tl-dot:focus{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}.tl-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(15,15,20,.88);color:#fff;font-size:10px;padding:4px 8px;border-radius:5px;pointer-events:none;z-index:9999;max-width:220px;white-space:normal;text-align:center;line-height:1.4}.tl-dot:hover .tl-tip,.tl-dot:focus .tl-tip{display:block}
+    .acts{display:flex;gap:4px}.ab{width:26px;height:26px;border-radius:6px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--t2);transition:all .13s;position:relative;z-index:21}.ab:hover:not(:disabled){transform:scale(1.08)}.ab:focus{outline:2px solid var(--blue);outline-offset:2px}.ab.adv:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}.ab.edit:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}.ab.del:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+    .tfooter{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-top:1px solid var(--bd);background:var(--surface2);gap:12px}.tfooter span{font-size:11.5px;color:var(--t2)}.loading-row{padding:32px 16px;text-align:center;color:var(--t2);font-size:13px}.conflict-note{display:none;background:var(--amber-bg);color:var(--amber);border:1px solid rgba(180,83,9,.2);border-radius:8px;padding:9px 10px;font-size:12px;margin-bottom:12px;line-height:1.4}.conflict-note.show{display:block}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}.modal{background:var(--surface);border-radius:14px;border:1px solid var(--bd);width:100%;max-width:520px;max-height:90vh;overflow-y:auto}.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--bd)}.modal-hdr h3{font-size:15px;font-weight:700;letter-spacing:-0.3px}.modal-close{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--t2)}.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}.modal-body{padding:18px 20px}.fgroup{margin-bottom:14px}.fgroup label{display:block;font-size:11.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}.finput{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--bd2);background:var(--surface2);font-size:13px;color:var(--t1);outline:none;font-family:var(--font-sans)}.finput:focus{border-color:var(--blue);background:var(--surface)}select.finput{cursor:pointer}.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--bd);flex-wrap:wrap}.err{font-size:11px;color:var(--red);margin-top:4px;display:none}.err.show{display:block}.confirm-box{background:var(--surface);border-radius:12px;border:1px solid var(--bd);width:100%;max-width:380px;padding:24px;text-align:center}.confirm-box h3{font-size:15px;font-weight:700;margin-bottom:8px}.confirm-box p{font-size:13px;color:var(--t2);margin-bottom:20px;line-height:1.6}.confirm-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.steps-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:340px;overflow-y:auto}.step-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--surface2)}.step-num{font-size:10.5px;color:var(--t2);font-weight:600;min-width:20px;text-align:center}.step-item input{flex:1;border:none;background:transparent;font-size:12.5px;color:var(--t1);outline:none;font-family:var(--font-sans);min-width:0}.step-item input:focus{border-bottom:1px solid var(--blue)}.step-del{width:22px;height:22px;border-radius:5px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--t2);flex-shrink:0}.step-del:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+    .stage-meta{display:flex;flex-direction:column;gap:3px;font-size:11px;line-height:1.35}.stage-meta strong{font-size:11px;color:var(--t1);font-weight:600}.stage-meta span{color:var(--t2)}.stage-due{font-size:11px;margin-top:3px}.stage-edit-btn{margin-top:4px;align-self:flex-start;border:1px solid var(--bd);background:transparent;color:var(--t2);border-radius:5px;padding:2px 6px;font-size:10.5px;cursor:pointer}.stage-edit-btn:hover,.stage-edit-btn:focus{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);outline:none}.due-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto}.due-item{border:1px solid var(--bd);border-radius:8px;background:var(--surface2);padding:9px 10px;font-size:12px;line-height:1.45}.due-item strong{display:block;font-size:12.5px;color:var(--t1);margin-bottom:3px}.due-item span{display:block;color:var(--t2)}.due-status{display:inline-block;margin-top:4px;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}.due-status.overdue{background:var(--red-bg);color:var(--red)}.due-status.today{background:var(--amber-bg);color:var(--amber)}.due-status.soon,.due-status.soon2,.due-status.soon5{background:var(--blue-bg);color:var(--blue)}
+    .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}.toast{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;font-size:12.5px;font-weight:500;pointer-events:all;animation:toastIn .25s ease;min-width:220px;box-shadow:0 8px 30px rgba(0,0,0,.08)}.toast-ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0}.t-green .toast-ic{background:var(--green)}.t-blue .toast-ic{background:var(--blue)}.t-red .toast-ic{background:var(--red)}.t-amber .toast-ic{background:var(--amber)}@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.toast.out{animation:toastOut .2s ease forwards}@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+    @media (max-width:900px){.wrap{padding:16px 14px 36px}.hdr{flex-direction:column}.hdr-actions{width:100%;justify-content:flex-start}.kpi-row{grid-template-columns:repeat(2,1fr)}.fbar{align-items:stretch}.srch{flex-basis:100%}select.fsel{flex:1;min-width:150px;max-width:none}.fsep{display:none}.title-display,.subtitle-display{max-width:100%}}
+    @media (max-width:560px){.kpi-row{grid-template-columns:1fr}.hdr-actions .btn{flex:1}.frow{grid-template-columns:1fr}.modal-footer,.confirm-btns{justify-content:stretch}.modal-footer .btn,.confirm-btns .btn{flex:1}.toast-wrap{left:14px;right:14px;bottom:14px}.toast{min-width:0}.tfooter{flex-direction:column;align-items:flex-start}.fbar{padding:10px}.wrap{padding-left:10px;padding-right:10px}}
+  </style>
+</head>
+<body>
+
+  <!-- ==================== TELA DE LOGIN ==================== -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">▤</div>
+      <h2>Painel de Processos</h2>
+      <p>Acesso restrito. Informe suas credenciais para continuar.</p>
+
+      <div class="login-fgroup">
+        <label for="login-user">Usuário</label>
+        <input class="login-input" id="login-user" type="text" placeholder="seu.usuario" autocomplete="username" />
+      </div>
+      <div class="login-fgroup">
+        <label for="login-pass">Senha</label>
+        <input class="login-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <div class="login-err" id="login-err">Usuário ou senha incorretos.</div>
+      </div>
+
+      <button class="login-btn" id="login-btn" type="button">Entrar</button>
+
+      <div class="login-footer">
+        Problemas de acesso? Fale com o administrador do sistema.
+      </div>
+    </div>
+  </div>
+  <!-- ======================================================= -->
+
+  <div id="app-content" style="display:none">
+    <div class="wrap">
+      <header class="hdr">
+        <div class="hdr-left">
+          <div class="title-wrap">
+            <span class="title-display" id="title-display" role="button" tabindex="0" title="Clique para editar">Processos de Compra de Alimentos</span>
+            <button class="edit-ic" id="title-edit-btn" type="button" aria-label="Editar título">✎</button>
+          </div>
+          <input class="title-input" id="title-input" style="display:none" value="Processos de Compra de Alimentos" aria-label="Título do painel">
+          <div class="subtitle-wrap" id="subtitle-wrap">
+            <span class="subtitle-display" id="subtitle-display" role="button" tabindex="0" title="Clique para editar">Acompanhamento em tempo real · Alimentos &amp; Insumos</span>
+            <button class="subtitle-edit-ic" id="subtitle-edit-btn" type="button" aria-label="Editar subtítulo">✎</button>
+          </div>
+          <input class="subtitle-input" id="subtitle-input" style="display:none" value="Acompanhamento em tempo real · Alimentos &amp; Insumos" aria-label="Subtítulo do painel">
+        </div>
+        <div class="hdr-actions">
+          <button class="btn btn-ghost" id="btn-steps" type="button">⚙ Gerenciar etapas</button>
+          <button class="btn btn-ghost" id="btn-export" type="button">↓ Exportar CSV</button>
+          <button class="btn btn-primary" id="btn-new" type="button">+ Novo processo</button>
+          <button class="btn btn-ghost" id="btn-logout" type="button" title="Sair">↩ Sair</button>
+        </div>
+      </header>
+
+      <section class="kpi-row" aria-label="Indicadores do painel">
+        <div class="kpi kpi-blue"><div class="kpi-icon">▤</div><div class="kpi-val" id="k-active">—</div><div class="kpi-label">Processos ativos</div><span class="kpi-delta delta-n" id="k-adelta"></span></div>
+        <div class="kpi kpi-red"><div class="kpi-icon">!</div><div class="kpi-val" id="k-high">—</div><div class="kpi-label">Alta prioridade</div><span class="kpi-delta delta-dn" id="k-hdelta"></span></div>
+        <div class="kpi kpi-green"><div class="kpi-icon">✓</div><div class="kpi-val" id="k-done">—</div><div class="kpi-label">Concluídos</div><span class="kpi-delta delta-up" id="k-ddelta"></span></div>
+        <div class="kpi kpi-amber"><div class="kpi-icon">◐</div><div class="kpi-val" id="k-avg">—</div><div class="kpi-label">Avanço médio</div><span class="kpi-delta delta-n" id="k-avdelta"></span></div>
+      </section>
+
+      <section class="fbar" aria-label="Filtros">
+        <div class="srch"><span class="srch-ic">⌕</span><input id="fsearch" type="text" placeholder="Buscar processo SEI, produto…" aria-label="Buscar processo SEI, produto, responsável ou observação"></div>
+        <div class="fsep"></div>
+        <select class="fsel" id="fetapa" aria-label="Filtrar por etapa"><option value="">Todas as etapas</option></select>
+        <select class="fsel" id="fpri" aria-label="Filtrar por prioridade"><option value="">Prioridade</option><option>Alta</option><option>Média</option><option>Baixa</option></select>
+        <select class="fsel" id="fresp" aria-label="Filtrar por responsável"><option value="">Responsável</option></select>
+        <div class="fsep"></div>
+        <select class="fsel" id="fsort" aria-label="Ordenar processos"><option value="">Ordenar por</option><option value="prazo">Prazo</option><option value="pri">Prioridade</option><option value="step">Avanço</option></select>
+      </section>
+
+      <main class="tcard" aria-live="polite">
+        <div class="table-scroll">
+          <div class="table-inner">
+            <div class="thead-row" id="thead-row">
+              <div class="col-proc th">Produto / SEI</div>
+              <div class="col-resp th">Resp. etapa</div>
+              <div class="col-prazo th">Prazos</div>
+              <div class="col-pri th">Prioridade</div>
+              <div class="col-tl">
+                <div class="th" style="margin-bottom:6px">Etapas do processo</div>
+                <div class="step-labels-row" id="step-labels-row"></div>
+              </div>
+              <div class="col-acts th">Ações</div>
+            </div>
+            <div id="tbody"><div class="loading-row">Carregando processos…</div></div>
+          </div>
+        </div>
+        <div class="tfooter"><span id="tcount">Carregando…</span><span id="tupd">Aguardando dados</span></div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="overlay" id="overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+      <div class="modal-hdr">
+        <h3 id="modal-title">Novo processo</h3>
+        <button class="modal-close" id="modal-close" type="button" aria-label="Fechar modal de processo">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="fgroup"><label for="f-name">Produto *</label><input class="finput" id="f-name" placeholder="Ex: Arroz integral 50kg"><div class="err" id="e-name">Campo obrigatório</div></div>
+        <div class="frow">
+          <div class="fgroup"><label for="f-id">Processo SEI *</label><input class="finput" id="f-id" placeholder="Ex: 00190.000001/2025-01"><div class="err" id="e-id">Campo obrigatório</div></div>
+          <div class="fgroup"><label for="f-prazo">Prazo final</label><input class="finput" id="f-prazo" type="date"><div class="err" id="e-prazo">Use uma data válida</div></div>
+        </div>
+        <div class="frow">
+          <div class="fgroup"><label for="f-pri">Prioridade</label><select class="finput" id="f-pri"><option>Alta</option><option selected>Média</option><option>Baixa</option></select></div>
+          <div class="fgroup"><label for="f-step">Etapa atual</label><select class="finput" id="f-step"></select></div>
+        </div>
+        <div id="f-stage-meta" style="display:none">
+          <div class="frow">
+            <div class="fgroup"><label for="f-stage-resp">Responsável da etapa *</label><input class="finput" id="f-stage-resp" placeholder="Nome completo"><div class="err" id="e-f-stage-resp">Campo obrigatório ao alterar a etapa</div></div>
+            <div class="fgroup"><label for="f-stage-deadline">Prazo máximo da etapa *</label><input class="finput" id="f-stage-deadline" type="date"><div class="err" id="e-f-stage-deadline">Informe uma data válida ao alterar a etapa</div></div>
+          </div>
+        </div>
+        <div class="fgroup"><label for="f-obs">Observações</label><textarea class="finput" id="f-obs" rows="2" placeholder="Notas adicionais…" style="resize:vertical"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="modal-save" type="button">Salvar processo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="steps-overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="steps-title" style="max-width:480px" tabindex="-1">
+      <div class="modal-hdr">
+        <h3 id="steps-title">Gerenciar etapas</h3>
+        <button class="modal-close" id="steps-close" type="button" aria-label="Fechar gerenciador de etapas">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12px;color:var(--t2);margin-bottom:12px">Renomeie, exclua ou adicione etapas. O painel preserva o significado histórico usando IDs estáveis quando disponíveis.</p>
+        <div class="conflict-note" id="steps-conflict">As etapas foram alteradas em outra sessão enquanto este modal estava aberto. Revise antes de aplicar suas alterações.</div>
+        <div class="steps-list" id="steps-list"></div>
+        <button class="btn btn-ghost" id="btn-add-step" type="button" style="width:100%;justify-content:center">+ Adicionar etapa</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="steps-cancel" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="steps-save" type="button">Aplicar alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirm-overlay" style="display:none">
+    <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-title" tabindex="-1">
+      <h3 id="confirm-title">Excluir processo?</h3>
+      <p id="confirm-msg">Esta ação não pode ser desfeita.</p>
+      <div class="confirm-btns">
+        <button class="btn btn-ghost" id="confirm-cancel" type="button">Cancelar</button>
+        <button class="btn btn-danger" id="confirm-delete" type="button">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="stage-overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stage-title" style="max-width:460px" tabindex="-1">
+      <div class="modal-hdr">
+        <h3 id="stage-title">Alterar etapa</h3>
+        <button class="modal-close" id="stage-close" type="button" aria-label="Fechar modal de alteração de etapa">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="stage-msg" style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.5"></p>
+        <div class="fgroup"><label for="stage-resp">Responsável da etapa *</label><input class="finput" id="stage-resp" placeholder="Nome completo"><div class="err" id="e-stage-resp">Campo obrigatório</div></div>
+        <div class="fgroup"><label for="stage-deadline">Prazo máximo da etapa *</label><input class="finput" id="stage-deadline" type="date"><div class="err" id="e-stage-deadline">Informe uma data válida</div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="stage-cancel" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="stage-save" type="button">Salvar alteração</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="due-overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="due-title" style="max-width:560px" tabindex="-1">
+      <div class="modal-hdr">
+        <h3 id="due-title">Processos próximos do vencimento</h3>
+        <button class="modal-close" id="due-close" type="button" aria-label="Fechar aviso de vencimento">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.5">As etapas abaixo estão atrasadas, vencem hoje, vencem em 2 dias ou vencem em 5 dias.</p>
+        <div class="due-list" id="due-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="due-ok" type="button">Entendi</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    'use strict';
+
+    /* ===================== LOGIN =====================
+       Credenciais definidas aqui — troque conforme necessário.
+       Para segurança real, valide no backend ou use autenticação
+       do próprio Supabase (supabase.auth.signInWithPassword).
+    ================================================== */
+    const LOGIN_USERS = [
+      { user: 'admin',    pass: 'admin123' },
+      { user: 'gestor',   pass: 'gestor@2025' },
+    ];
+    const SESSION_KEY = 'painel_auth_v1';
+
+    function checkSession(){
+      try{ return !!sessionStorage.getItem(SESSION_KEY); }
+      catch(e){ return false; }
+    }
+    function createSession(user){
+      try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, ts: Date.now() })); }
+      catch(e){}
+    }
+    function destroySession(){
+      try{ sessionStorage.removeItem(SESSION_KEY); }
+      catch(e){}
+    }
+    function showApp(){
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-content').style.display = '';
+    }
+    function showLogin(){
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app-content').style.display = 'none';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-err').classList.remove('show');
+      setTimeout(() => document.getElementById('login-user').focus(), 60);
+    }
+
+    function attemptLogin(){
+      const user = document.getElementById('login-user').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      const match = LOGIN_USERS.find(c => c.user === user && c.pass === pass);
+      if(match){
+        document.getElementById('login-err').classList.remove('show');
+        document.getElementById('login-user').classList.remove('error');
+        document.getElementById('login-pass').classList.remove('error');
+        createSession(user);
+        showApp();
+        initApp();
+      } else {
+        document.getElementById('login-err').classList.add('show');
+        document.getElementById('login-user').classList.add('error');
+        document.getElementById('login-pass').classList.add('error');
+        document.getElementById('login-pass').value = '';
+        document.getElementById('login-pass').focus();
+      }
+    }
+
+    // Eventos do login
+    document.getElementById('login-btn').addEventListener('click', attemptLogin);
+    document.getElementById('login-pass').addEventListener('keydown', e => {
+      if(e.key === 'Enter') attemptLogin();
+    });
+    document.getElementById('login-user').addEventListener('keydown', e => {
+      if(e.key === 'Enter') document.getElementById('login-pass').focus();
+    });
+    // Limpa erro ao digitar
+    ['login-user','login-pass'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        document.getElementById('login-err').classList.remove('show');
+        document.getElementById('login-user').classList.remove('error');
+        document.getElementById('login-pass').classList.remove('error');
+      });
+    });
+
+    // Verifica sessão ao carregar
+    if(checkSession()){
+      showApp();
+    } else {
+      setTimeout(() => document.getElementById('login-user').focus(), 60);
+    }
+    /* ================================================ */
+
+    /*
+      A chave publishable/anon do Supabase é pública por natureza em aplicações front-end.
+      Segurança real deve ser feita no banco com RLS habilitado e policies adequadas para
+      as tabelas public.processos e public.painel_configuracoes.
+    */
+    const SUPABASE_URL = 'https://ppgdrwjimqurjuseyqhs.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_84mc4FU-er6neFa1LAVlHA_JlTpuO32';
+
+    const DEFAULT_STEPS = [
+      'Levantamento da demanda','Pesquisa de mercado e validação','Elaboração e aprovação do ETP','Preparação da chamada pública','Análise jurídica e autorização','Publicação e divulgação do edital','Chamada aberta','Análise dos documentos','Divulgação dos resultados','Homologação','Contratação','Entrega','Pagamento/liquidação'
+    ].map(label => ({ id: slugify(label), label }));
+
+    const AV_COLORS = ['#2563EB','#16A34A','#B45309','#9333EA','#0891B2','#C2410C','#DB2777'];
+    const PRI_ORDER = { Alta:0, Média:1, Baixa:2 };
+    const DEFAULT_TITLE = 'Processos de Compra de Alimentos';
+    const DEFAULT_SUBTITLE = 'Acompanhamento em tempo real · Alimentos & Insumos';
+
+    let db = null;
+    let STEPS = [...DEFAULT_STEPS];
+    let data = [];
+    let tempSteps = [];
+    let editingId = null;
+    let deleteId = null;
+    let settingsLoaded = false;
+    let realtimeStarted = false;
+    let settingsSaveQueue = Promise.resolve(true);
+    let titleSaving = false;
+    let subtitleSaving = false;
+    let stepsSaving = false;
+    let processSaving = false;
+    let deleteSaving = false;
+    let tableLoading = true;
+    let suppressProcessRealtimeUntil = 0;
+    let suppressConfigRealtimeUntil = 0;
+    let activeModal = null;
+    let focusStack = [];
+    let supportsEtapaId = true;
+    let supportsPrazoIso = true;
+    let supportsStageFields = true;
+    let pendingStageChange = null;
+    let dueAlertSeenKeys = new Set();
+    let appInitialized = false;
+
+    const $ = (id) => document.getElementById(id);
+
+    function slugify(value){
+      return (value || 'etapa').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'etapa';
+    }
+    function esc(v){
+      return (v ?? '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+    function cleanSpaces(value){ return (value || '').toString().trim().replace(/\s+/g,' '); }
+    function normalizeDuplicateKey(value){ return cleanSpaces(value).toLocaleLowerCase('pt-BR'); }
+    function abbr(s){
+      const text = (s || '').toString();
+      const words = text.split(' ').filter(Boolean);
+      if(text.length <= 10) return text;
+      if(words.length === 1) return text.slice(0,9) + '.';
+      const short = words.map(w => {
+        if(w.length <= 3) return w;
+        if(['de','da','do','e','a','o','as','os','em'].includes(w.toLowerCase())) return w;
+        return w.slice(0,5) + (w.length > 5 ? '.' : '');
+      }).join(' ');
+      return short.length > 14 ? short.slice(0,13) + '.' : short;
+    }
+    function normalizeStepsArray(value, fallback = DEFAULT_STEPS){
+      const source = Array.isArray(value) && value.length ? value : fallback;
+      const used = new Set();
+      const normalized = [];
+      source.forEach((item, index) => {
+        const rawLabel = typeof item === 'string' ? item : item?.label;
+        const label = cleanSpaces(rawLabel);
+        if(!label) return;
+        let baseId = cleanSpaces(typeof item === 'object' ? item?.id : '') || slugify(label);
+        let id = baseId;
+        let n = 2;
+        while(used.has(id)){ id = baseId + '_' + n; n += 1; }
+        used.add(id);
+        normalized.push({ id, label, legacyIndex:index });
+      });
+      return normalized.length ? normalized : [{ id:'etapa_inicial', label:'Etapa inicial', legacyIndex:0 }];
+    }
+    function getStepById(id){ return STEPS.find(s => s.id === id) || null; }
+    function clampStepIndex(value){
+      const stepNum = Number(value);
+      if(!Number.isFinite(stepNum)) return 0;
+      const max = Math.max(STEPS.length - 1, 0);
+      return Math.min(Math.max(Math.trunc(stepNum), 0), max);
+    }
+    function resolveStep(rowOrItem){
+      const etapaId = rowOrItem?.etapa_id || rowOrItem?.stepId;
+      const byId = etapaId ? getStepById(etapaId) : null;
+      if(byId){ return { id:byId.id, label:byId.label, index:STEPS.findIndex(s => s.id === byId.id) }; }
+      const index = clampStepIndex(rowOrItem?.etapa_atual ?? rowOrItem?.stepIndex ?? rowOrItem?.step);
+      const step = STEPS[index] || STEPS[0];
+      return { id:step.id, label:step.label, index };
+    }
+    function parseDateBR(str){
+      const raw = cleanSpaces(str);
+      if(!raw) return null;
+      const p = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if(!p) return null;
+      const day = Number(p[1]);
+      const month = Number(p[2]);
+      const year = Number(p[3]);
+      const d = new Date(year, month - 1, day);
+      if(d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) return null;
+      d.setHours(0,0,0,0);
+      return d;
+    }
+    function parseISODate(str){
+      const raw = cleanSpaces(str);
+      const p = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if(!p) return null;
+      const d = new Date(Number(p[1]), Number(p[2]) - 1, Number(p[3]));
+      if(d.getFullYear() !== Number(p[1]) || d.getMonth() !== Number(p[2]) - 1 || d.getDate() !== Number(p[3])) return null;
+      d.setHours(0,0,0,0);
+      return d;
+    }
+    function dateToISO(date){
+      if(!date) return '';
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2,'0');
+      const d = String(date.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    function dateToBR(date){
+      if(!date) return '';
+      const d = String(date.getDate()).padStart(2,'0');
+      const m = String(date.getMonth() + 1).padStart(2,'0');
+      return `${d}/${m}/${date.getFullYear()}`;
+    }
+    function parseStageDateValue(value){
+      const raw = cleanSpaces(value);
+      if(!raw) return null;
+      const fromISO = parseISODate(raw);
+      if(fromISO){ fromISO.setHours(23,59,59,999); return fromISO; }
+      const fromBR = parseDateBR(raw);
+      if(fromBR){ fromBR.setHours(23,59,59,999); return fromBR; }
+      const d = new Date(raw);
+      if(Number.isNaN(d.getTime())) return null;
+      d.setHours(23,59,59,999);
+      return d;
+    }
+    function isoToDateInput(value){
+      if(!value) return '';
+      const raw = cleanSpaces(value);
+      const d = parseISODate(raw) || new Date(raw);
+      return Number.isNaN(d.getTime()) ? '' : dateToISO(d);
+    }
+    function dateOnlyToBR(value){
+      if(!value) return '';
+      const raw = cleanSpaces(value);
+      const d = parseISODate(raw) || new Date(raw);
+      return Number.isNaN(d.getTime()) ? '' : dateToBR(d);
+    }
+    function getStageDeadlineDay(value){
+      if(!value) return null;
+      const raw = cleanSpaces(value);
+      const d = parseISODate(raw) || new Date(raw);
+      if(Number.isNaN(d.getTime())) return null;
+      d.setHours(0,0,0,0);
+      return d;
+    }
+    function getStageDeadlineDiffDays(item){
+      if(!item?.stageDeadline) return null;
+      if(item.stepIndex >= STEPS.length - 1) return null;
+      const endDay = getStageDeadlineDay(item.stageDeadline);
+      if(!endDay) return null;
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return Math.floor((endDay - today) / (1000 * 60 * 60 * 24));
+    }
+    function getStageDeadlineStatus(item){
+      const diff = getStageDeadlineDiffDays(item);
+      if(item?.stageDeadline && item.stepIndex >= STEPS.length - 1) return 'done';
+      if(diff === null) return 'none';
+      if(diff < 0) return 'overdue';
+      if(diff === 0) return 'today';
+      if(diff === 2) return 'soon2';
+      if(diff === 5) return 'soon5';
+      return 'ok';
+    }
+    function currentStageDotDeadlineClass(item){
+      const status = getStageDeadlineStatus(item);
+      if(status === 'overdue') return 'due-overdue';
+      if(status === 'today') return 'due-today';
+      if(status === 'soon2') return 'due-soon2';
+      return '';
+    }
+    function normalizePrazoForUI(row){
+      const fromIso = parseISODate(row?.prazo_iso);
+      if(fromIso) return dateToBR(fromIso);
+      const fromBR = parseDateBR(row?.prazo);
+      return fromBR ? dateToBR(fromBR) : cleanSpaces(row?.prazo || '');
+    }
+    function validatePrazoInput(str){
+      const raw = cleanSpaces(str);
+      if(!raw) return { ok:true, br:'', iso:'' };
+      const d = parseISODate(raw) || parseDateBR(raw);
+      return d ? { ok:true, br:dateToBR(d), iso:dateToISO(d) } : { ok:false, br:raw, iso:'' };
+    }
+    function avatarFromName(name){
+      const safeName = cleanSpaces(name) || 'Responsável';
+      let hash = 0;
+      for(let i = 0; i < safeName.length; i++){ hash = safeName.charCodeAt(i) + ((hash << 5) - hash); }
+      return Math.abs(hash) % AV_COLORS.length;
+    }
+    function initials(name){
+      const safe = cleanSpaces(name) || '?';
+      return safe.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase() || '?';
+    }
+    function isMissingColumnError(error, columnName){
+      const target = cleanSpaces(columnName).toLowerCase();
+      if(!target) return false;
+      const msg = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`.toLowerCase();
+      if(msg.includes(target)) return true;
+      if(error?.code === '42703'){
+        return msg.includes(`column "${target}"`) || msg.includes(`column ${target}`) || msg.includes(`'${target}'`) || msg.includes(`"${target}"`);
+      }
+      return false;
+    }
+    function userMessageForSupabaseError(error, action){
+      const msg = (error?.message || '').toLowerCase();
+      if(error?.code === '42501' || msg.includes('rls') || msg.includes('row-level security') || msg.includes('permission')) return `Sem permissão para ${action}. Verifique as policies/RLS no Supabase.`;
+      if(error?.code === '42703' || msg.includes('column') || msg.includes('schema cache')) return `Não foi possível ${action}: há campos esperados que não existem no banco.`;
+      if(msg.includes('failed to fetch') || msg.includes('network') || msg.includes('fetch')) return `Falha de conexão ao tentar ${action}.`;
+      return `Não foi possível ${action}. Tente novamente.`;
+    }
+    function toast(msg, type='blue'){
+      const ic = type === 'green' ? '✓' : type === 'red' ? '✕' : type === 'amber' ? '!' : 'i';
+      const el = document.createElement('div');
+      el.className = `toast t-${type}`;
+      el.innerHTML = `<div class="toast-ic">${esc(ic)}</div><span>${esc(msg)}</span>`;
+      $('toast-wrap').appendChild(el);
+      setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 220); }, 3200);
+    }
+    function setButtonLoading(btn, loading, labelWhenLoading='Salvando...'){
+      if(!btn) return;
+      if(loading){ btn.dataset.oldText = btn.textContent; btn.textContent = labelWhenLoading; btn.disabled = true; }
+      else { btn.textContent = btn.dataset.oldText || btn.textContent; btn.disabled = false; delete btn.dataset.oldText; }
+    }
+
+    function initSupabase(){
+      if(!window.supabase){
+        toast('Erro ao carregar Supabase. Verifique sua conexão e recarregue a página.', 'red');
+        throw new Error('Supabase não carregado');
+      }
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    async function ensureSettingsRow(){
+      const { data: existing, error } = await db.from('painel_configuracoes').select('id').eq('id', 1).maybeSingle();
+      if(error){ console.error('Erro ao verificar configurações:', error); toast(userMessageForSupabaseError(error, 'verificar configurações'), 'red'); return false; }
+      if(existing) return true;
+      const payload = { id:1, titulo:DEFAULT_TITLE, subtitulo:DEFAULT_SUBTITLE, etapas:STEPS, atualizado_em:new Date().toISOString() };
+      const { error: insertError } = await db.from('painel_configuracoes').insert(payload);
+      if(insertError){
+        const duplicate = insertError.code === '23505' || (insertError.message || '').toLowerCase().includes('duplicate');
+        if(duplicate) return true;
+        console.error('Erro ao criar configurações iniciais:', insertError);
+        toast(userMessageForSupabaseError(insertError, 'criar configurações iniciais'), 'red');
+        return false;
+      }
+      return true;
+    }
+    async function getPanelConfigRow(){
+      const { data: row, error } = await db.from('painel_configuracoes').select('*').eq('id',1).maybeSingle();
+      if(error){ console.error('Erro ao buscar configurações:', error); toast(userMessageForSupabaseError(error, 'buscar configurações'), 'red'); return null; }
+      return row;
+    }
+    async function loadPanelSettings(){
+      const ok = await ensureSettingsRow();
+      if(!ok){ settingsLoaded = false; return false; }
+      const cfg = await getPanelConfigRow();
+      if(!cfg){ settingsLoaded = false; return false; }
+      const titulo = cfg.titulo || DEFAULT_TITLE;
+      const subtitulo = cfg.subtitulo || DEFAULT_SUBTITLE;
+      STEPS = normalizeStepsArray(cfg.etapas, DEFAULT_STEPS);
+      $('title-display').textContent = titulo;
+      $('title-input').value = titulo;
+      $('subtitle-display').textContent = subtitulo;
+      $('subtitle-input').value = subtitulo;
+      settingsLoaded = true;
+      return true;
+    }
+    async function savePanelSettings(overrides = {}){
+      settingsSaveQueue = settingsSaveQueue.catch(err => { console.error('Erro anterior na fila de salvamento:', err); return false; }).then(async () => {
+        const ready = settingsLoaded || await loadPanelSettings();
+        if(!ready) return false;
+        const current = await getPanelConfigRow();
+        if(!current) return false;
+        const payload = {
+          id:1,
+          titulo:overrides.titulo ?? current.titulo ?? $('title-display').textContent ?? DEFAULT_TITLE,
+          subtitulo:overrides.subtitulo ?? current.subtitulo ?? $('subtitle-display').textContent ?? DEFAULT_SUBTITLE,
+          etapas:normalizeStepsArray(overrides.etapas ?? current.etapas, STEPS),
+          atualizado_em:new Date().toISOString()
+        };
+        const { error } = await db.from('painel_configuracoes').upsert(payload, { onConflict:'id' });
+        if(error){ console.error('Erro ao salvar configurações:', error); toast(userMessageForSupabaseError(error, 'salvar configurações'), 'red'); return false; }
+        return true;
+      });
+      return settingsSaveQueue;
+    }
+    async function saveTitleValue(titulo){ return savePanelSettings({ titulo }); }
+    async function saveSubtitleValue(subtitulo){ return savePanelSettings({ subtitulo }); }
+    async function saveStepsValue(etapas){
+      const safe = normalizeStepsArray(etapas, STEPS);
+      if(!safe.length){ toast('É necessário pelo menos 1 etapa.', 'amber'); return false; }
+      return savePanelSettings({ etapas:safe });
+    }
+
+    async function loadData(options = {}){
+      const { showLoading = true } = options;
+      if(showLoading){
+        tableLoading = true;
+        renderTable();
+      }
+      const { data: rows, error } = await db.from('processos').select('*').order('id', { ascending:true });
+      tableLoading = false;
+      if(error){ console.error('Erro ao carregar processos:', error); toast(userMessageForSupabaseError(error, 'carregar processos'), 'red'); data = []; refresh(); return false; }
+      data = (rows || []).map(row => {
+        const resolved = resolveStep(row);
+        const legacyResp = cleanSpaces(row.responsavel || '');
+        const stageResp = cleanSpaces(row.etapa_responsavel || legacyResp);
+        return {
+          db_id:row.id,
+          id:cleanSpaces(row.sei || ''),
+          name:cleanSpaces(row.nome || ''),
+          resp:stageResp,
+          legacyResp,
+          prazo:normalizePrazoForUI(row),
+          prazoIso:dateToISO(parseDateBR(normalizePrazoForUI(row))) || cleanSpaces(row.prazo_iso || ''),
+          stageStartedAt:cleanSpaces(row.etapa_iniciada_em || ''),
+          stageDeadline:cleanSpaces(row.etapa_prazo_maximo || ''),
+          updatedAt:cleanSpaces(row.updated_at || ''),
+          pri:['Alta','Média','Baixa'].includes(row.prioridade) ? row.prioridade : 'Média',
+          stepId:resolved.id,
+          stepIndex:resolved.index,
+          obs:cleanSpaces(row.observacoes || ''),
+          avatar:avatarFromName(stageResp)
+        };
+      });
+      refresh();
+      $('tupd').textContent = 'Atualizado agora';
+      return true;
+    }
+    async function writeWithOptionalColumns(action, payload){
+      const fullPayload = { ...payload };
+      if(!supportsEtapaId) delete fullPayload.etapa_id;
+      if(!supportsPrazoIso) delete fullPayload.prazo_iso;
+      let result = await action(fullPayload);
+      if(result.error && fullPayload.etapa_id !== undefined && isMissingColumnError(result.error, 'etapa_id')){
+        console.warn('Campo etapa_id não existe; usando compatibilidade por índice.', result.error);
+        supportsEtapaId = false;
+        delete fullPayload.etapa_id;
+        result = await action(fullPayload);
+      }
+      if(result.error && fullPayload.prazo_iso !== undefined && isMissingColumnError(result.error, 'prazo_iso')){
+        console.warn('Campo prazo_iso não existe; usando prazo em texto.', result.error);
+        supportsPrazoIso = false;
+        delete fullPayload.prazo_iso;
+        result = await action(fullPayload);
+      }
+      if(result.error && (fullPayload.etapa_iniciada_em !== undefined || fullPayload.etapa_prazo_maximo !== undefined || fullPayload.etapa_responsavel !== undefined)){
+        const missingStageField = ['etapa_iniciada_em','etapa_prazo_maximo','etapa_responsavel'].some(col => isMissingColumnError(result.error, col));
+        if(missingStageField){
+          console.warn('Campos de etapa não existem no banco.', result.error);
+          toast('Não foi possível alterar a etapa: crie os campos de prazo e responsável da etapa no Supabase.', 'red');
+          return result;
+        }
+      }
+      return result;
+    }
+    function markManualProcessWrite(){ suppressProcessRealtimeUntil = Date.now() + 1200; }
+    function markManualConfigWrite(){ suppressConfigRealtimeUntil = Date.now() + 1200; }
+    async function insertProcess(payload){
+      markManualProcessWrite();
+      const result = await writeWithOptionalColumns((p) => db.from('processos').insert(p), payload);
+      if(result.error){ console.error('Erro ao inserir processo:', result.error); toast(userMessageForSupabaseError(result.error, 'salvar processo'), 'red'); return false; }
+      return true;
+    }
+    async function updateProcess(dbId, payload, expectedUpdatedAt = ''){
+      if(!expectedUpdatedAt){ toast('Não foi possível validar concorrência. Recarregue os dados antes de salvar.', 'red'); return false; }
+      markManualProcessWrite();
+      const stampedPayload = { ...payload, updated_at:new Date().toISOString() };
+      const result = await writeWithOptionalColumns((p) => db.from('processos').update(p).eq('id', dbId).eq('updated_at', expectedUpdatedAt).select('id,updated_at'), stampedPayload);
+      if(result.error){ console.error('Erro ao atualizar processo:', result.error); toast(userMessageForSupabaseError(result.error, 'atualizar processo'), 'red'); return false; }
+      if(!result.data || !result.data.length){ toast('Este processo foi alterado por outra pessoa. Recarregue os dados e tente novamente.', 'amber'); await loadData({ showLoading:false }); return false; }
+      return true;
+    }
+    async function deleteProcess(dbId, expectedUpdatedAt = ''){
+      if(!expectedUpdatedAt){ toast('Não foi possível validar concorrência. Recarregue os dados antes de excluir.', 'red'); return false; }
+      markManualProcessWrite();
+      const { data: deletedRows, error } = await db.from('processos').delete().eq('id', dbId).eq('updated_at', expectedUpdatedAt).select('id');
+      if(error){ console.error('Erro ao excluir processo:', error); toast(userMessageForSupabaseError(error, 'excluir processo'), 'red'); return false; }
+      if(!deletedRows || !deletedRows.length){ toast('Este processo foi alterado por outra pessoa. Recarregue os dados e tente novamente.', 'amber'); await loadData({ showLoading:false }); return false; }
+      return true;
+    }
+    function processPayloadFromForm(){
+      const name = cleanSpaces($('f-name').value);
+      const sei = cleanSpaces($('f-id').value);
+      const prazoValidation = validatePrazoInput($('f-prazo').value);
+      const stepIndex = clampStepIndex(parseInt($('f-step').value, 10));
+      const step = STEPS[stepIndex] || STEPS[0];
+      return {
+        validation:{ name, sei, prazo:prazoValidation },
+        stepIndex,
+        step,
+        payload:{
+          sei,
+          nome:name,
+          responsavel:'',
+          prazo:prazoValidation.br,
+          prazo_iso:prazoValidation.iso || null,
+          prioridade:$('f-pri').value,
+          etapa_atual:stepIndex,
+          etapa_id:step.id,
+          observacoes:cleanSpaces($('f-obs').value),
+          avatar:0
+        }
+      };
+    }
+
+    function prazoStatus(str, stepIndex){
+      if(stepIndex >= STEPS.length - 1) return 'done';
+      const d = parseDateBR(str);
+      if(!d) return 'none';
+      const now = new Date(); now.setHours(0,0,0,0);
+      const diff = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
+      if(diff < 0) return 'overdue';
+      if(diff <= 7) return 'soon';
+      return 'ok';
+    }
+    function prazoBadge(str, stepIndex){
+      const s = prazoStatus(str, stepIndex);
+      const safeStr = esc(str);
+      if(s === 'done') return '';
+      if(s === 'none') return `<span class="prazo-val" style="color:var(--t2)">${safeStr || '—'}</span>`;
+      if(s === 'overdue') return `<span class="prazo-val pb-overdue">⚠ ${safeStr}</span>`;
+      if(s === 'soon') return `<span class="prazo-val pb-soon">⏰ ${safeStr}</span>`;
+      return `<span class="prazo-val pb-ok">${safeStr}</span>`;
+    }
+    function stageDeadlineBadge(item){
+      const text = dateOnlyToBR(item?.stageDeadline);
+      const status = getStageDeadlineStatus(item);
+      if(status === 'done') return '';
+      if(!text || status === 'none') return '<span style="color:var(--t2)">—</span>';
+      if(status === 'overdue') return `<span class="pb-overdue">⚠ ${esc(text)}</span>`;
+      if(status === 'today') return `<span class="pb-soon">Hoje ${esc(text)}</span>`;
+      if(status === 'soon2') return `<span class="pb-soon">⏰ ${esc(text)}</span>`;
+      if(status === 'soon5') return `<span class="pb-ok">${esc(text)}</span>`;
+      return `<span class="pb-ok">${esc(text)}</span>`;
+    }
+    function updateKPI(){
+      const lastIndex = Math.max(STEPS.length - 1, 0);
+      const active = data.filter(d => d.stepIndex < lastIndex).length;
+      const high = data.filter(d => d.pri === 'Alta').length;
+      const done = data.filter(d => d.stepIndex >= lastIndex).length;
+      const avg = data.length && lastIndex > 0 ? Math.round(data.reduce((s,d) => s + d.stepIndex, 0) / data.length / lastIndex * 100) : 0;
+      $('k-active').textContent = active;
+      $('k-high').textContent = high;
+      $('k-done').textContent = done;
+      $('k-avg').textContent = avg + '%';
+      $('k-adelta').textContent = active + ' em andamento';
+      $('k-hdelta').textContent = high + ' críticos';
+      $('k-ddelta').textContent = done + ' total';
+      $('k-avdelta').textContent = 'média geral';
+    }
+    function populateFilters(){
+      const resps = [...new Set(data.map(d => d.resp).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+      const fr = $('fresp');
+      const fe = $('fetapa');
+      const frv = fr.value;
+      const fev = fe.value;
+      fr.innerHTML = '<option value="">Responsável</option>' + resps.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('');
+      fe.innerHTML = '<option value="">Todas as etapas</option>' + STEPS.map(s => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join('');
+      fr.value = [...fr.options].some(o => o.value === frv) ? frv : '';
+      fe.value = [...fe.options].some(o => o.value === fev) ? fev : '';
+    }
+    function renderStepLabels(){ $('step-labels-row').innerHTML = STEPS.map(s => `<span class="step-lbl" title="${esc(s.label)}">${esc(abbr(s.label))}</span>`).join(''); }
+    function getFilteredData(){
+      const q = $('fsearch').value.toLowerCase().trim();
+      const fe = $('fetapa').value;
+      const fp = $('fpri').value;
+      const fr = $('fresp').value;
+      const fs = $('fsort').value;
+      const list = data.filter(d => {
+        const haystack = [d.name, d.id, d.resp, d.obs].join(' ').toLowerCase();
+        if(q && !haystack.includes(q)) return false;
+        if(fe && d.stepId !== fe) return false;
+        if(fp && d.pri !== fp) return false;
+        if(fr && d.resp !== fr) return false;
+        return true;
+      }).map(d => ({ ...d }));
+      if(fs === 'pri') list.sort((a,b) => (PRI_ORDER[a.pri] ?? 99) - (PRI_ORDER[b.pri] ?? 99));
+      else if(fs === 'step') list.sort((a,b) => b.stepIndex - a.stepIndex);
+      else if(fs === 'prazo'){
+        list.sort((a,b) => {
+          const da = parseDateBR(a.prazo);
+          const dbd = parseDateBR(b.prazo);
+          if(!da && !dbd) return 0;
+          if(!da) return 1;
+          if(!dbd) return -1;
+          return da - dbd;
+        });
+      }
+      return list;
+    }
+    function renderTable(){
+      if(tableLoading){
+        $('tbody').innerHTML = '<div class="loading-row">Carregando processos…</div>';
+        $('tcount').textContent = 'Carregando…';
+        return;
+      }
+      const priCls = p => p === 'Alta' ? 'pri-high' : p === 'Média' ? 'pri-med' : 'pri-low';
+      const pct = s => STEPS.length <= 1 ? 100 : Math.round(s / (STEPS.length - 1) * 100);
+      const list = getFilteredData();
+      function stagStyle(d){
+        if(d.stepIndex >= STEPS.length - 1) return 'stag-green';
+        const ps = prazoStatus(d.prazo, d.stepIndex);
+        if(ps === 'overdue') return 'stag-red';
+        if(d.stepIndex >= Math.floor(STEPS.length / 2)) return 'stag-blue';
+        return 'stag-amber';
+      }
+      $('tbody').innerHTML = list.map(d => {
+        const dots = STEPS.map((s, si) => {
+          const cls = si < d.stepIndex ? 'done' : si === d.stepIndex ? `active ${currentStageDotDeadlineClass(d)}` : 'future';
+          return `<button type="button" class="tl-dot ${cls}" data-id="${esc(d.db_id)}" data-si="${si}" aria-label="Definir etapa: ${esc(s.label)}"><span class="tl-tip">${esc(s.label)}</span></button>`;
+        }).join('');
+        const stepLabel = STEPS[d.stepIndex]?.label || STEPS[0]?.label || '';
+        return `<div class="prow">
+          <div class="row-grid">
+            <div class="col-proc"><div class="proc-id">${esc(d.id)}</div><div class="proc-name">${esc(d.name)}</div><span class="stag ${stagStyle(d)}">${esc(stepLabel)}</span></div>
+            <div class="col-resp"><div style="display:flex;align-items:center;gap:6px"><div class="avatar" style="background:${AV_COLORS[d.avatar]}">${esc(initials(d.resp))}</div><span class="resp-name">${esc(d.resp || '—')}</span></div></div>
+            <div class="col-prazo"><div class="stage-meta"><strong>Prazo final:</strong><span>${prazoBadge(d.prazo, d.stepIndex)}</span><strong>Venc. etapa:</strong><span class="stage-due">${stageDeadlineBadge(d)}</span><button class="stage-edit-btn" type="button" data-id="${esc(d.db_id)}" title="Editar responsável e prazo da etapa">Editar etapa</button></div></div>
+            <div class="col-pri"><span class="pri ${priCls(d.pri)}"><span class="pri-dot"></span>${esc(d.pri)}</span></div>
+            <div class="col-tl"><div class="tl-outer"><div class="tl-track"></div><div class="tl-fill" style="width:${pct(d.stepIndex)}%"></div><div class="tl-dots">${dots}</div></div></div>
+            <div class="col-acts"><button class="ab adv" data-id="${esc(d.db_id)}" title="Avançar etapa" aria-label="Avançar etapa">▶</button><button class="ab edit" data-id="${esc(d.db_id)}" title="Editar" aria-label="Editar processo">✎</button><button class="ab del" data-id="${esc(d.db_id)}" title="Excluir" aria-label="Excluir processo">✕</button></div>
+          </div>
+        </div>`;
+      }).join('') || '<div class="loading-row">Nenhum processo encontrado com os filtros aplicados.</div>';
+      $('tcount').textContent = list.length + ' processo' + (list.length !== 1 ? 's' : '') + ' exibido' + (list.length !== 1 ? 's' : '');
+    }
+    function refresh(){ updateKPI(); populateFilters(); renderStepLabels(); renderTable(); }
+
+    function showOverlay(id, focusSelector){
+      const currentFocus = document.activeElement;
+      focusStack.push({ id, element:currentFocus });
+      const overlay = $(id);
+      overlay.style.display = 'flex';
+      activeModal = id;
+      const target = focusSelector ? overlay.querySelector(focusSelector) : overlay.querySelector('[tabindex="-1"],button,input,select,textarea');
+      setTimeout(() => target?.focus(), 60);
+    }
+    function hideOverlay(id){
+      $(id).style.display = 'none';
+      if(activeModal === id) activeModal = null;
+      let focusEntry = null;
+      for(let i = focusStack.length - 1; i >= 0; i--){
+        if(focusStack[i].id === id){
+          focusEntry = focusStack.splice(i, 1)[0];
+          break;
+        }
+      }
+      const target = focusEntry?.element;
+      if(target && typeof target.focus === 'function' && document.contains(target)){
+        setTimeout(() => target.focus(), 30);
+      }
+    }
+    function startTitleEdit(){
+      $('title-display').style.display = 'none';
+      const input = $('title-input');
+      input.dataset.previous = $('title-display').textContent;
+      input.style.display = 'inline-block';
+      input.focus(); input.select();
+    }
+    async function finishTitleEdit(){
+      if(titleSaving) return;
+      const input = $('title-input');
+      if(input.style.display === 'none') return;
+      const display = $('title-display');
+      const previous = input.dataset.previous || display.textContent || DEFAULT_TITLE;
+      const next = cleanSpaces(input.value) || DEFAULT_TITLE;
+      titleSaving = true;
+      input.disabled = true;
+      markManualConfigWrite();
+      const ok = await saveTitleValue(next);
+      input.disabled = false;
+      titleSaving = false;
+      if(ok){ display.textContent = next; input.value = next; toast('Título atualizado', 'blue'); }
+      else { display.textContent = previous; input.value = previous; toast('Não foi possível salvar o título. Valor anterior restaurado.', 'red'); }
+      input.style.display = 'none'; display.style.display = '';
+    }
+    function cancelTitleEdit(){ $('title-input').value = $('title-input').dataset.previous || $('title-display').textContent || DEFAULT_TITLE; $('title-input').style.display = 'none'; $('title-display').style.display = ''; }
+    function startSubtitleEdit(){
+      $('subtitle-display').style.display = 'none';
+      const input = $('subtitle-input');
+      input.dataset.previous = $('subtitle-display').textContent;
+      input.style.display = 'inline-block';
+      input.focus(); input.select();
+    }
+    async function finishSubtitleEdit(){
+      if(subtitleSaving) return;
+      const input = $('subtitle-input');
+      if(input.style.display === 'none') return;
+      const display = $('subtitle-display');
+      const previous = input.dataset.previous || display.textContent || DEFAULT_SUBTITLE;
+      const next = cleanSpaces(input.value) || DEFAULT_SUBTITLE;
+      subtitleSaving = true;
+      input.disabled = true;
+      markManualConfigWrite();
+      const ok = await saveSubtitleValue(next);
+      input.disabled = false;
+      subtitleSaving = false;
+      if(ok){ display.textContent = next; input.value = next; toast('Subtítulo atualizado', 'blue'); }
+      else { display.textContent = previous; input.value = previous; toast('Não foi possível salvar o subtítulo. Valor anterior restaurado.', 'red'); }
+      input.style.display = 'none'; display.style.display = '';
+    }
+    function cancelSubtitleEdit(){ $('subtitle-input').value = $('subtitle-input').dataset.previous || $('subtitle-display').textContent || DEFAULT_SUBTITLE; $('subtitle-input').style.display = 'none'; $('subtitle-display').style.display = ''; }
+
+    function isMainModalStageChanged(){
+      const originalStep = clampStepIndex(parseInt($('f-step').dataset.originalStep || '0', 10));
+      const currentStep = clampStepIndex(parseInt($('f-step').value, 10));
+      return currentStep !== originalStep;
+    }
+    function updateMainModalStageMetaVisibility(){
+      const changed = isMainModalStageChanged();
+      $('f-stage-meta').style.display = changed ? '' : 'none';
+      if(!changed){
+        $('f-stage-resp').value = '';
+        $('f-stage-deadline').value = '';
+        $('e-f-stage-resp').classList.remove('show');
+        $('e-f-stage-deadline').classList.remove('show');
+      }
+    }
+
+    function openModal(dbId = null){
+      editingId = dbId;
+      const d = dbId ? data.find(x => String(x.db_id) === String(dbId)) : null;
+      if(dbId && !d){ toast('Processo não encontrado para edição.', 'red'); return; }
+      $('modal-title').textContent = d ? 'Editar produto' : 'Novo processo';
+      $('f-name').value = d?.name || '';
+      $('f-id').value = d?.id || '';
+      $('f-prazo').value = d?.prazo ? dateToISO(parseDateBR(d.prazo)) : '';
+      $('f-pri').value = d?.pri || 'Média';
+      $('f-obs').value = d?.obs || '';
+      const currentIndex = d ? d.stepIndex : 0;
+      $('f-step').innerHTML = STEPS.map((s,i) => `<option value="${i}"${currentIndex === i ? ' selected' : ''}>${i + 1}. ${esc(s.label)}</option>`).join('');
+      $('f-step').dataset.originalStep = String(currentIndex);
+      $('f-stage-resp').value = '';
+      $('f-stage-deadline').value = '';
+      ['name','id','prazo'].forEach(f => $('e-' + f).classList.remove('show'));
+      $('e-f-stage-resp').classList.remove('show');
+      $('e-f-stage-deadline').classList.remove('show');
+      updateMainModalStageMetaVisibility();
+      showOverlay('overlay', '#f-name');
+    }
+    function closeModal(){ hideOverlay('overlay'); editingId = null; }
+    async function saveModal(){
+      if(processSaving) return;
+      const btn = $('modal-save');
+      setButtonLoading(btn, true, 'Salvando...');
+      processSaving = true;
+      try{
+        const { validation, payload, stepIndex } = processPayloadFromForm();
+        const current = editingId ? data.find(x => String(x.db_id) === String(editingId)) : null;
+        const stageChanged = current ? stepIndex !== current.stepIndex : stepIndex !== 0;
+        const stageResp = cleanSpaces($('f-stage-resp').value);
+        const stageDeadline = parseStageDateValue($('f-stage-deadline').value);
+        let ok = true;
+        if(!validation.name){ $('e-name').classList.add('show'); ok = false; } else $('e-name').classList.remove('show');
+        if(!validation.sei){ $('e-id').classList.add('show'); ok = false; } else $('e-id').classList.remove('show');
+        if(!validation.prazo.ok){ $('e-prazo').classList.add('show'); ok = false; } else $('e-prazo').classList.remove('show');
+        if(stageChanged && !stageResp){ $('e-f-stage-resp').classList.add('show'); ok = false; } else $('e-f-stage-resp').classList.remove('show');
+        if(stageChanged && !stageDeadline){ $('e-f-stage-deadline').classList.add('show'); ok = false; } else $('e-f-stage-deadline').classList.remove('show');
+        if(!ok) return;
+        if(stageChanged){
+          payload.etapa_iniciada_em = new Date().toISOString();
+          payload.etapa_prazo_maximo = stageDeadline.toISOString();
+          payload.etapa_responsavel = stageResp;
+        }
+        let success = false;
+        if(editingId){
+          if(!current){ toast('Processo não encontrado para atualização.', 'red'); return; }
+          payload.responsavel = current.legacyResp || '';
+          success = await updateProcess(current.db_id, payload, current.updatedAt);
+          if(success) toast('Processo atualizado', 'blue');
+        } else {
+          success = await insertProcess(payload);
+          if(success) toast('Processo criado', 'green');
+        }
+        if(!success) return;
+        closeModal();
+        await loadData();
+        showDueAlertIfNeeded();
+      } finally {
+        processSaving = false;
+        setButtonLoading(btn, false);
+      }
+    }
+    function openStageChangeModal(dbId, targetStepIndex){
+      const d = data.find(x => String(x.db_id) === String(dbId));
+      if(!d) return;
+      const safeIndex = clampStepIndex(targetStepIndex);
+      if(safeIndex === d.stepIndex){ toast('Esta etapa já está selecionada.', 'blue'); return; }
+      const step = STEPS[safeIndex];
+      pendingStageChange = { mode:'change', dbId:d.db_id, targetStepIndex:safeIndex, targetStepId:step.id, previousStepIndex:d.stepIndex, previousStepId:d.stepId };
+      $('stage-title').textContent = 'Alterar etapa';
+      $('stage-msg').innerHTML = `Antes de salvar a mudança para <strong>${esc(step.label)}</strong>, informe o prazo máximo e o responsável desta etapa.`;
+      $('stage-resp').value = '';
+      $('stage-deadline').value = '';
+      $('e-stage-resp').classList.remove('show');
+      $('e-stage-deadline').classList.remove('show');
+      showOverlay('stage-overlay', '#stage-resp');
+    }
+    function openStageMetaEditModal(dbId){
+      const d = data.find(x => String(x.db_id) === String(dbId));
+      if(!d){ toast('Processo não encontrado para edição da etapa.', 'red'); return; }
+      const stepLabel = STEPS[d.stepIndex]?.label || 'etapa atual';
+      pendingStageChange = { mode:'edit', dbId:d.db_id };
+      $('stage-title').textContent = 'Editar dados da etapa';
+      $('stage-msg').innerHTML = `Edite o responsável e o prazo máximo da <strong>${esc(stepLabel)}</strong> sem alterar a etapa atual.`;
+      $('stage-resp').value = d.resp || '';
+      $('stage-deadline').value = isoToDateInput(d.stageDeadline);
+      $('e-stage-resp').classList.remove('show');
+      $('e-stage-deadline').classList.remove('show');
+      showOverlay('stage-overlay', '#stage-resp');
+    }
+    function closeStageChangeModal(){ hideOverlay('stage-overlay'); pendingStageChange = null; }
+    async function saveStageChange(){
+      if(processSaving || !pendingStageChange) return;
+      const btn = $('stage-save');
+      const resp = cleanSpaces($('stage-resp').value);
+      const deadline = parseStageDateValue($('stage-deadline').value);
+      let ok = true;
+      if(!resp){ $('e-stage-resp').classList.add('show'); ok = false; } else $('e-stage-resp').classList.remove('show');
+      if(!deadline){ $('e-stage-deadline').classList.add('show'); ok = false; } else $('e-stage-deadline').classList.remove('show');
+      if(!ok) return;
+      const d = data.find(x => String(x.db_id) === String(pendingStageChange.dbId));
+      if(!d){ toast('Processo não encontrado para atualização.', 'red'); return; }
+      setButtonLoading(btn, true, 'Salvando...');
+      processSaving = true;
+      try{
+        const payload = pendingStageChange.mode === 'edit'
+          ? {
+              etapa_prazo_maximo:deadline.toISOString(),
+              etapa_responsavel:resp
+            }
+          : {
+              etapa_atual:pendingStageChange.targetStepIndex,
+              etapa_id:pendingStageChange.targetStepId,
+              etapa_iniciada_em:new Date().toISOString(),
+              etapa_prazo_maximo:deadline.toISOString(),
+              etapa_responsavel:resp
+            };
+        const success = await updateProcess(d.db_id, payload, d.updatedAt);
+        if(!success) return;
+        closeStageChangeModal();
+        await loadData({ showLoading:false });
+        showDueAlertIfNeeded();
+        toast(payload.etapa_atual === undefined ? 'Dados da etapa atualizados' : 'Etapa atualizada: ' + (STEPS[payload.etapa_atual]?.label || ''), 'green');
+      } finally {
+        processSaving = false;
+        setButtonLoading(btn, false);
+      }
+    }
+    function advStep(dbId){
+      const d = data.find(x => String(x.db_id) === String(dbId));
+      if(!d) return;
+      if(d.stepIndex >= STEPS.length - 1){ toast('Processo já concluído', 'green'); return; }
+      openStageChangeModal(dbId, d.stepIndex + 1);
+    }
+    function setProcessStep(dbId, stepIndex){ openStageChangeModal(dbId, stepIndex); }
+
+    function askDelete(dbId){
+      deleteId = dbId;
+      const d = data.find(x => String(x.db_id) === String(dbId));
+      $('confirm-msg').textContent = (d ? `"${d.name}"` : 'Este processo') + ' será removido permanentemente.';
+      showOverlay('confirm-overlay', '#confirm-cancel');
+    }
+    function closeConfirm(){ hideOverlay('confirm-overlay'); deleteId = null; }
+    async function confirmDelete(){
+      if(deleteSaving) return;
+      const btn = $('confirm-delete');
+      setButtonLoading(btn, true, 'Excluindo...');
+      deleteSaving = true;
+      try{
+        if(!deleteId) return;
+        const current = data.find(x => String(x.db_id) === String(deleteId));
+        if(!current){ toast('Processo não encontrado para exclusão.', 'red'); return; }
+        const success = await deleteProcess(current.db_id, current.updatedAt);
+        if(!success) return;
+        closeConfirm();
+        await loadData();
+        showDueAlertIfNeeded();
+        toast('Processo removido', 'red');
+      } finally {
+        deleteSaving = false;
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function openStepsManager(){
+      tempSteps = STEPS.map(s => ({ ...s }));
+      $('steps-conflict').classList.remove('show');
+      renderStepsList();
+      showOverlay('steps-overlay', '#btn-add-step');
+    }
+    function closeStepsManager(){ hideOverlay('steps-overlay'); tempSteps = []; $('steps-conflict').classList.remove('show'); }
+    function syncTempStepsFromInputs(){
+      $('steps-list').querySelectorAll('input').forEach((inp, i) => { if(tempSteps[i]) tempSteps[i].label = cleanSpaces(inp.value); });
+    }
+    function renderStepsList(){
+      $('steps-list').innerHTML = tempSteps.map((s,i) => `<div class="step-item" data-i="${i}"><span class="step-num">${i + 1}</span><input value="${esc(s.label)}" data-i="${i}" placeholder="Nome da etapa" aria-label="Nome da etapa ${i + 1}"><button type="button" class="step-del" data-i="${i}" title="Remover etapa" aria-label="Remover etapa ${i + 1}">✕</button></div>`).join('');
+    }
+    function addStepItem(){
+      syncTempStepsFromInputs();
+      const base = 'Nova etapa';
+      let label = base;
+      let n = 2;
+      const names = new Set(tempSteps.map(s => normalizeDuplicateKey(s.label)));
+      while(names.has(normalizeDuplicateKey(label))){ label = `${base} ${n}`; n += 1; }
+      tempSteps.push({ id:slugify(label) + '_' + Date.now().toString(36), label });
+      renderStepsList();
+      const inputs = $('steps-list').querySelectorAll('input');
+      const last = inputs[inputs.length - 1];
+      if(last){ last.focus(); last.select(); }
+    }
+    function removeStepItem(i){
+      syncTempStepsFromInputs();
+      if(tempSteps.length <= 1){ toast('É necessário pelo menos 1 etapa', 'amber'); return; }
+      tempSteps.splice(i, 1);
+      renderStepsList();
+    }
+    async function saveSteps(){
+      if(stepsSaving) return;
+      const btn = $('steps-save');
+      setButtonLoading(btn, true, 'Salvando...');
+      stepsSaving = true;
+      try{
+        syncTempStepsFromInputs();
+        const nextSteps = tempSteps.map(s => ({ id:s.id || slugify(s.label), label:cleanSpaces(s.label) })).filter(s => s.label);
+        if(!nextSteps.length){ toast('É necessário pelo menos 1 etapa', 'amber'); return; }
+        const seen = new Set();
+        const hasDuplicates = nextSteps.some(s => {
+          const key = normalizeDuplicateKey(s.label);
+          if(seen.has(key)) return true;
+          seen.add(key); return false;
+        });
+        if(hasDuplicates){ toast('Existem etapas duplicadas', 'amber'); return; }
+        const normalized = normalizeStepsArray(nextSteps, STEPS);
+        markManualConfigWrite();
+        const ok = await saveStepsValue(normalized);
+        if(!ok) return;
+        STEPS = normalized;
+        closeStepsManager();
+        await loadData();
+        showDueAlertIfNeeded();
+        toast('Etapas atualizadas (' + STEPS.length + ')', 'green');
+      } finally {
+        stepsSaving = false;
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function getDueAlertProcesses(){
+      return data.map(item => ({ item, status:getStageDeadlineStatus(item) }))
+        .filter(entry => ['overdue','today','soon2','soon5'].includes(entry.status));
+    }
+    function dueStatusLabel(status){
+      if(status === 'overdue') return 'Atrasado';
+      if(status === 'today') return 'Vence hoje';
+      if(status === 'soon2') return 'Faltam 2 dias';
+      if(status === 'soon5') return 'Faltam 5 dias';
+      return '';
+    }
+    function dueAlertKey(entry){
+      const item = entry?.item || {};
+      return [item.db_id || item.id || '', item.stepId || '', item.stageDeadline || '', entry?.status || ''].join('|');
+    }
+    function showDueAlertIfNeeded(){
+      const list = getDueAlertProcesses().filter(entry => !dueAlertSeenKeys.has(dueAlertKey(entry)));
+      if(!list.length) return;
+      list.forEach(entry => dueAlertSeenKeys.add(dueAlertKey(entry)));
+      $('due-title').textContent = 'Atenção aos prazos de etapa';
+      $('due-list').innerHTML = list.map(({ item, status }) => {
+        const stepLabel = STEPS[item.stepIndex]?.label || '';
+        return `<div class="due-item"><strong>${esc(item.name || item.id || 'Processo sem identificação')}</strong><span>Processo: ${esc(item.id || '—')}</span><span>Etapa atual: ${esc(stepLabel || '—')}</span><span>Responsável da etapa: ${esc(item.resp || '—')}</span><span>Vencimento da etapa: ${esc(dateOnlyToBR(item.stageDeadline) || '—')}</span><span class="due-status ${esc(status)}">${esc(dueStatusLabel(status))}</span></div>`;
+      }).join('');
+      showOverlay('due-overlay', '#due-ok');
+    }
+    function closeDueAlert(){ hideOverlay('due-overlay'); }
+
+    function csvCell(value){
+      const text = (value ?? '').toString();
+      const safe = /^[=+\-@]/.test(text.trimStart()) ? "'" + text : text;
+      return '"' + safe.replace(/"/g,'""') + '"';
+    }
+    function exportCSV(){
+      const headers = ['Processo SEI','Nome','Responsável da etapa','Prioridade','Prazo final','Etapa atual','Início da etapa','Vencimento da etapa','Progresso %','Observações'];
+      const rows = getFilteredData().map(d => [d.id,d.name,d.resp,d.pri,d.prazo || '',STEPS[d.stepIndex]?.label || '',dateOnlyToBR(d.stageStartedAt) || '',dateOnlyToBR(d.stageDeadline) || '',(STEPS.length <= 1 ? 100 : Math.round(d.stepIndex / (STEPS.length - 1) * 100)) + '%',d.obs || '']);
+      const csv = [headers, ...rows].map(r => r.map(csvCell).join(';')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'processos-compra.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast('CSV exportado com os filtros atuais', 'green');
+    }
+
+    function startRealtime(){
+      if(realtimeStarted) return;
+      realtimeStarted = true;
+      db.channel('processos-sync')
+        .on('postgres_changes', { event:'*', schema:'public', table:'processos' }, async () => {
+          if(Date.now() < suppressProcessRealtimeUntil) return;
+          await loadData();
+          showDueAlertIfNeeded();
+        })
+        .subscribe(status => { if(status === 'CHANNEL_ERROR') console.error('Realtime de processos indisponível'); });
+      db.channel('config-sync')
+        .on('postgres_changes', { event:'*', schema:'public', table:'painel_configuracoes' }, async () => {
+          if(Date.now() < suppressConfigRealtimeUntil) return;
+          const titleEditing = $('title-input').style.display !== 'none';
+          const subtitleEditing = $('subtitle-input').style.display !== 'none';
+          const stepsOpen = $('steps-overlay').style.display === 'flex';
+          if(titleSaving || subtitleSaving || stepsSaving || titleEditing || subtitleEditing){ return; }
+          if(stepsOpen){ $('steps-conflict').classList.add('show'); toast('Etapas atualizadas em outra sessão. Revise antes de aplicar.', 'amber'); return; }
+          const ok = await loadPanelSettings();
+          if(ok) refresh();
+        })
+        .subscribe(status => { if(status === 'CHANNEL_ERROR') console.error('Realtime de configurações indisponível'); });
+    }
+
+    function bindEvents(){
+      $('title-display').addEventListener('click', startTitleEdit);
+      $('title-display').addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); startTitleEdit(); } });
+      $('title-edit-btn').addEventListener('click', startTitleEdit);
+      $('title-input').addEventListener('blur', finishTitleEdit);
+      $('title-input').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); e.target.blur(); } if(e.key === 'Escape'){ e.preventDefault(); cancelTitleEdit(); } });
+      $('subtitle-display').addEventListener('click', startSubtitleEdit);
+      $('subtitle-display').addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); startSubtitleEdit(); } });
+      $('subtitle-edit-btn').addEventListener('click', startSubtitleEdit);
+      $('subtitle-input').addEventListener('blur', finishSubtitleEdit);
+      $('subtitle-input').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); e.target.blur(); } if(e.key === 'Escape'){ e.preventDefault(); cancelSubtitleEdit(); } });
+      $('btn-steps').addEventListener('click', openStepsManager);
+      $('btn-export').addEventListener('click', exportCSV);
+      $('btn-new').addEventListener('click', () => openModal(null));
+      $('btn-logout').addEventListener('click', () => {
+        destroySession();
+        showLogin();
+      });
+      ['fsearch','fetapa','fpri','fresp','fsort'].forEach(id => $(id).addEventListener(id === 'fsearch' ? 'input' : 'change', renderTable));
+      $('modal-close').addEventListener('click', closeModal);
+      $('modal-cancel').addEventListener('click', closeModal);
+      $('modal-save').addEventListener('click', saveModal);
+      $('f-step').addEventListener('change', updateMainModalStageMetaVisibility);
+      $('steps-close').addEventListener('click', closeStepsManager);
+      $('steps-cancel').addEventListener('click', closeStepsManager);
+      $('steps-save').addEventListener('click', saveSteps);
+      $('btn-add-step').addEventListener('click', addStepItem);
+      $('confirm-cancel').addEventListener('click', closeConfirm);
+      $('confirm-delete').addEventListener('click', confirmDelete);
+      $('stage-close').addEventListener('click', closeStageChangeModal);
+      $('stage-cancel').addEventListener('click', closeStageChangeModal);
+      $('stage-save').addEventListener('click', saveStageChange);
+      $('due-close').addEventListener('click', closeDueAlert);
+      $('due-ok').addEventListener('click', closeDueAlert);
+      $('overlay').addEventListener('click', e => { if(e.target === $('overlay')) closeModal(); });
+      $('steps-overlay').addEventListener('click', e => { if(e.target === $('steps-overlay')) closeStepsManager(); });
+      $('confirm-overlay').addEventListener('click', e => { if(e.target === $('confirm-overlay')) closeConfirm(); });
+      $('stage-overlay').addEventListener('click', e => { if(e.target === $('stage-overlay')) closeStageChangeModal(); });
+      $('due-overlay').addEventListener('click', e => { if(e.target === $('due-overlay')) closeDueAlert(); });
+      $('tbody').addEventListener('click', e => {
+        const adv = e.target.closest('.ab.adv');
+        const edit = e.target.closest('.ab.edit');
+        const del = e.target.closest('.ab.del');
+        const dot = e.target.closest('.tl-dot');
+        const stageEdit = e.target.closest('.stage-edit-btn');
+        if(stageEdit) return openStageMetaEditModal(stageEdit.dataset.id);
+        if(adv) return advStep(adv.dataset.id);
+        if(edit) return openModal(edit.dataset.id);
+        if(del) return askDelete(del.dataset.id);
+        if(dot) return setProcessStep(dot.dataset.id, parseInt(dot.dataset.si,10));
+      });
+      $('steps-list').addEventListener('input', e => {
+        if(e.target.matches('input')){
+          const i = parseInt(e.target.dataset.i, 10);
+          if(tempSteps[i]) tempSteps[i].label = e.target.value;
+        }
+      });
+      $('steps-list').addEventListener('click', e => {
+        const btn = e.target.closest('.step-del');
+        if(btn){ e.preventDefault(); removeStepItem(parseInt(btn.dataset.i, 10)); }
+      });
+      document.addEventListener('keydown', e => {
+        if(e.key !== 'Escape') return;
+        if($('due-overlay').style.display === 'flex') closeDueAlert();
+        else if($('stage-overlay').style.display === 'flex') closeStageChangeModal();
+        else if($('confirm-overlay').style.display === 'flex') closeConfirm();
+        else if($('steps-overlay').style.display === 'flex') closeStepsManager();
+        else if($('overlay').style.display === 'flex') closeModal();
+      });
+    }
+
+    async function initApp(){
+      if(appInitialized) return;
+      appInitialized = true;
+      try{
+        bindEvents();
+        initSupabase();
+        const ok = await loadPanelSettings();
+        if(ok) refresh();
+        await loadData();
+        showDueAlertIfNeeded();
+        startRealtime();
+      } catch(error){
+        tableLoading = false;
+        console.error('Falha ao inicializar painel:', error);
+        $('tbody').innerHTML = '<div class="loading-row">Não foi possível inicializar o painel. Verifique o console para detalhes.</div>';
+        $('tcount').textContent = 'Erro ao carregar';
+        toast('Erro ao inicializar o painel.', 'red');
+      }
+    }
+
+    // Inicia o app apenas se já autenticado (sessão válida ao carregar)
+    if(checkSession()){
+      initApp();
+    }
+  </script>
+</body>
+</html>
